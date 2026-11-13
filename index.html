@@ -3,377 +3,340 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Printable Notebook Generator — rule your own paper</title>
-<meta name="description" content="Make lined, dot grid, graph, Cornell, isometric and music paper in your browser. Pick a ruling, size and spacing, then print or save as PDF.">
+<title>DocGonzo Labs — small tools for color, paper and print</title>
+<meta name="description" content="Free web tools for color, paper and print: Chroma Lab, Journal Lab and Cover Lab.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style id="page-size">@page { size: 210mm 297mm; margin: 0; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --desk: #efe9dd;
-    --desk-deep: #e4dccd;
-    --paper: #fffdf8;
-    --ink: #1c2330;
-    --ink-soft: #5a6272;
-    --rule: #cfc6b4;
-    --margin-red: #d5503f;
-    --blue: #2c5a8c;
-    --display: "Fraunces", Georgia, serif;
-    --body: "Instrument Sans", system-ui, sans-serif;
+    --bg: #f3f5f7;
+    --ink: #14171d;
+    --soft: #5b6472;
+    --line: #d5dae1;
+    --blue: #2346cc;
+    --cyan: #00a3e0;
+    --magenta: #e6007e;
+    --yellow: #ffd400;
+    --cream: #ece8df;
+    --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+    --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, monospace;
-    --gutter: clamp(16px, 5vw, 72px);
+    --gutter: clamp(16px, 5vw, 64px);
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    background: var(--desk);
-    color: var(--ink);
-    font: 400 17px/1.55 var(--body);
-    -webkit-font-smoothing: antialiased;
-  }
-  /* The whole site sits on a ruled sheet: one red margin line down the left. */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0 auto 0 calc(var(--gutter) - 20px);
-    width: 1px;
-    background: var(--margin-red);
-    opacity: .45;
-    pointer-events: none;
-  }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
   a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 4px; }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--gutter); }
-  .label {
-    font: 500 12px/1 var(--mono);
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; border-radius: 4px; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--gutter); }
+  .mono { font: 500 12px/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
 
-  /* Nav */
-  header.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 22px; padding-bottom: 22px; }
-  .brand { display: flex; align-items: center; gap: 10px; font: 600 18px/1.1 var(--display); text-decoration: none; }
-  .brand svg { flex: none; }
-  .nav nav { display: flex; align-items: center; gap: 28px; font-size: 15px; }
-  .nav nav a { text-decoration: none; color: var(--ink-soft); }
-  .nav nav a:hover { color: var(--ink); }
-  @media (max-width: 720px) { .nav nav a:not(.btn) { display: none; } }
-
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    font: 600 15px/1 var(--body);
-    padding: 13px 20px;
-    border-radius: 999px;
-    border: 1.5px solid var(--ink);
-    background: var(--ink); color: var(--paper);
-    text-decoration: none; cursor: pointer;
-    transition: transform .15s, background .15s;
-  }
-  .btn:hover { background: #000; transform: translateY(-1px); }
-  .btn.ghost { background: transparent; color: var(--ink); }
-  .btn.ghost:hover { background: rgba(28,35,48,.07); }
-  .nav nav a.btn { color: var(--paper); padding: 10px 16px; font-size: 14px; }
+  /* Top bar */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 20px; padding-bottom: 20px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 14px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; }
+  .brand b { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--ink); color: #fff; font-size: 13px; letter-spacing: 0; }
+  .top nav { display: flex; align-items: center; gap: 26px; font-size: 15px; }
+  .top nav a { text-decoration: none; color: var(--soft); }
+  .top nav a:hover { color: var(--ink); }
+  @media (max-width: 720px) { .top nav a:not(.gh) { display: none; } }
 
   /* Hero */
-  .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(28px, 5vw, 72px); align-items: center; padding-top: clamp(24px, 5vw, 56px); padding-bottom: clamp(56px, 8vw, 104px); }
-  h1 { font: 600 clamp(44px, 7.2vw, 92px)/.98 var(--display); letter-spacing: -.025em; margin: 14px 0 20px; text-wrap: balance; }
-  h1 em { font-style: italic; font-weight: 400; color: var(--blue); }
-  .lede { font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-soft); max-width: 34em; margin: 0 0 30px; }
+  .hero { position: relative; padding-top: clamp(36px, 7vw, 88px); padding-bottom: clamp(48px, 7vw, 96px); }
+  .strip { display: flex; gap: 0; margin-bottom: clamp(24px, 4vw, 44px); }
+  .strip i { width: 22px; height: 22px; }
+  h1 { font: 800 clamp(46px, 9.4vw, 132px)/.92 var(--display); letter-spacing: -.035em; margin: 0; max-width: 11em; text-wrap: balance; }
+  h1 a { text-decoration: none; background: linear-gradient(var(--c), var(--c)) 0 92% / 100% .09em no-repeat; transition: background-size .2s; }
+  h1 a:hover { background-size: 100% .34em; }
+  .hero-foot { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; margin-top: clamp(28px, 4vw, 48px); }
+  .lede { font-size: clamp(18px, 1.7vw, 22px); color: var(--soft); max-width: 30em; margin: 0; }
+  .index { list-style: none; margin: 0; padding: 0; border-top: 1.5px solid var(--ink); min-width: min(100%, 340px); }
+  .index a { display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: baseline; padding: 11px 0; border-bottom: 1px solid var(--line); text-decoration: none; }
+  .index a span:first-child { color: var(--soft); }
+  .index a strong { font: 700 19px/1.2 var(--display); }
+  .index a:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+  .index a span:last-child { color: var(--soft); }
+  @media (max-width: 800px) { .hero-foot { grid-template-columns: 1fr; } }
+  .reg { position: absolute; top: clamp(36px, 7vw, 88px); right: var(--gutter); opacity: .55; }
+  @media (max-width: 600px) { .reg { display: none; } }
 
-  .panel { border-top: 1px solid var(--rule); display: grid; }
-  .row { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip {
-    font: 500 14px/1 var(--body); color: var(--ink);
-    padding: 8px 12px; border-radius: 999px;
-    border: 1px solid var(--rule); background: transparent; cursor: pointer;
-  }
-  .chip:hover { border-color: var(--ink); }
-  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-  .swatch { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 2px solid var(--desk); box-shadow: 0 0 0 1px var(--rule); cursor: pointer; }
-  .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
-  .range { display: flex; align-items: center; gap: 14px; }
-  .range input { flex: 1; accent-color: var(--ink); min-width: 0; }
-  .range output { font: 500 14px/1 var(--mono); min-width: 5.5ch; text-align: right; }
-  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 24px; }
-  .actions small { color: var(--ink-soft); font-size: 14px; }
+  /* Tool sections */
+  .tool { padding: clamp(56px, 8vw, 112px) 0; }
+  .tool .wrap { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 6vw, 88px); align-items: center; }
+  .tool.flip .copy { order: 2; }
+  @media (max-width: 880px) { .tool .wrap { grid-template-columns: 1fr; } .tool.flip .copy { order: 0; } }
+  .tool h2 { font: 800 clamp(40px, 6vw, 76px)/.95 var(--display); letter-spacing: -.03em; margin: 18px 0 16px; }
+  .tool p { margin: 0 0 22px; max-width: 30em; font-size: 18px; opacity: .82; }
+  .kicker { display: flex; align-items: center; gap: 12px; }
+  .kicker img { width: 44px; height: 44px; border-radius: 11px; display: block; }
+  .facts { list-style: none; margin: 0 0 30px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .facts li { font: 400 13px/1 var(--mono); padding: 8px 10px; border: 1px solid currentColor; border-radius: 4px; opacity: .75; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 22px; border-radius: 999px; font: 600 16px/1 var(--body); text-decoration: none; background: var(--btn-bg); color: var(--btn-fg); transition: transform .15s; }
+  .btn:hover { transform: translateX(3px); }
+  .btn::after { content: "→"; }
 
-  .stage { display: grid; justify-items: center; gap: 18px; }
-  .sheet {
-    position: relative; width: min(100%, 430px);
-    background: var(--paper);
-    box-shadow: 0 1px 0 #fff inset, 0 1px 2px rgba(40,30,10,.18), 0 18px 40px -18px rgba(40,30,10,.35);
-  }
-  .sheet::before, .sheet::after {
-    content: ""; position: absolute; inset: 0; background: var(--paper); z-index: -1;
-    box-shadow: 0 1px 2px rgba(40,30,10,.18);
-  }
-  .sheet::before { transform: rotate(-2.2deg) translate(-6px, 4px); }
-  .sheet::after { transform: rotate(1.4deg) translate(5px, 3px); }
-  .sheet svg { display: block; width: 100%; height: auto; }
-  .spec { font: 400 13px/1.3 var(--mono); color: var(--ink-soft); text-align: center; }
-  @media (max-width: 860px) {
-    .hero { grid-template-columns: 1fr; }
-    .sheet { width: min(100%, 340px); }
-  }
-  @media (max-width: 420px) { .row { grid-template-columns: 1fr; gap: 8px; } }
+  .chroma { background: var(--ink); color: #fff; --btn-bg: #fff; --btn-fg: var(--ink); }
+  .journal { background: var(--blue); color: #fff; --btn-bg: #fff; --btn-fg: var(--blue); }
+  .cover { background: var(--cream); --btn-bg: var(--ink); --btn-fg: #fff; }
 
-  /* Sections */
-  section { padding: clamp(56px, 8vw, 104px) 0; }
-  .band { background: var(--desk-deep); }
-  h2 { font: 600 clamp(30px, 4vw, 48px)/1.05 var(--display); letter-spacing: -.02em; margin: 12px 0 14px; text-wrap: balance; }
-  .intro { color: var(--ink-soft); max-width: 36em; margin: 0 0 40px; }
+  .demo { display: grid; gap: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip { cursor: pointer; padding: 8px 13px; border-radius: 999px; border: 1px solid currentColor; background: transparent; font: 500 14px/1 var(--body); opacity: .7; }
+  .chip:hover { opacity: 1; }
+  .chip[aria-pressed="true"] { opacity: 1; background: currentColor; }
+  .chip[aria-pressed="true"] span { color: var(--on); }
+  .chroma .chip { --on: var(--ink); } .journal .chip { --on: var(--blue); } .cover .chip { --on: var(--cream); }
+  .chips .push { margin-left: auto; }
+  .caption { font: 400 13px/1.4 var(--mono); opacity: .7; margin: 0; }
 
-  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 22px; }
-  .card {
-    display: block; text-align: left; padding: 0; font: inherit; color: inherit; cursor: pointer;
-    background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden;
-    transition: transform .18s, box-shadow .18s;
-  }
-  .card:hover { transform: translateY(-3px); box-shadow: 0 14px 28px -16px rgba(40,30,10,.4); }
-  .card svg { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--rule); }
-  .card div { padding: 16px 18px 18px; }
-  .card h3 { font: 600 20px/1.2 var(--display); margin: 0 0 4px; }
-  .card p { margin: 0; font-size: 15px; color: var(--ink-soft); }
+  /* Chroma demo */
+  .photo-card { background: #fff; color: var(--ink); border-radius: 14px; overflow: hidden; }
+  .photo-card svg { display: block; width: 100%; height: auto; }
+  .photo-card svg * { transition: fill .35s; }
+  .bar { display: grid; grid-template-columns: repeat(6, 1fr); height: 26px; }
+  .bar i { transition: background .35s; }
+  .codes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 14px; padding: 16px 18px 18px; margin: 0; list-style: none; }
+  .codes li { display: flex; align-items: center; gap: 8px; font: 400 13px/1.2 var(--mono); white-space: nowrap; }
+  .codes i { flex: none; width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.12); }
+  @media (max-width: 460px) { .codes { grid-template-columns: repeat(2, 1fr); } }
 
-  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 32px; counter-reset: s; }
-  .steps li { counter-increment: s; border-top: 1.5px solid var(--ink); padding-top: 16px; }
-  .steps li::before { content: "0" counter(s); font: 500 13px/1 var(--mono); color: var(--margin-red); }
-  .steps h3 { font: 600 22px/1.2 var(--display); margin: 10px 0 6px; }
-  .steps p { margin: 0; color: var(--ink-soft); }
+  /* Journal demo */
+  .sheet { background: #fff; width: min(100%, 440px); justify-self: center; box-shadow: 0 24px 50px -24px rgba(5,15,60,.7); }
+  .sheet svg, .art svg { display: block; width: 100%; height: auto; }
+  .journal .demo, .cover .demo { justify-items: center; }
+  .journal .chips, .cover .chips { width: min(100%, 440px); }
 
-  .faq { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 72px); }
-  @media (max-width: 860px) { .faq { grid-template-columns: 1fr; } }
-  details { border-bottom: 1px solid var(--rule); }
-  details:first-of-type { border-top: 1px solid var(--rule); }
-  summary { cursor: pointer; list-style: none; padding: 18px 0; font-weight: 600; display: flex; justify-content: space-between; gap: 16px; }
-  summary::-webkit-details-marker { display: none; }
-  summary::after { content: "+"; font: 400 22px/1 var(--mono); color: var(--ink-soft); }
-  details[open] summary::after { content: "–"; }
-  details p { margin: 0 0 20px; color: var(--ink-soft); max-width: 40em; }
+  /* Cover demo */
+  .art { width: min(100%, 400px); box-shadow: 0 2px 4px rgba(40,30,10,.2), 0 28px 50px -26px rgba(40,30,10,.55); border-radius: 3px; overflow: hidden; }
+  .cover .chips { width: min(100%, 400px); }
 
-  .closing { text-align: center; }
-  .closing h2 { font-size: clamp(36px, 6vw, 72px); }
-  footer { border-top: 1px solid var(--rule); padding-top: 26px; padding-bottom: 40px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--ink-soft); }
-
-  #print-root { display: none; }
-  @media print {
-    body { background: #fff; }
-    body::before, body > *:not(#print-root) { display: none !important; }
-    #print-root { display: block; }
-    #print-root svg { display: block; }
-  }
+  /* Closing */
+  .how { padding-block: clamp(56px, 8vw, 104px); }
+  .how h2 { font: 800 clamp(32px, 5vw, 60px)/1 var(--display); letter-spacing: -.03em; margin: 0 0 40px; max-width: 14em; text-wrap: balance; }
+  .trio { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 28px; }
+  .trio div { border-top: 4px solid var(--c); padding-top: 16px; }
+  .trio h3 { font: 700 22px/1.2 var(--display); margin: 0 0 6px; }
+  .trio p { margin: 0; color: var(--soft); }
+  footer { border-top: 1px solid var(--line); padding-top: 24px; padding-bottom: 40px; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; font-size: 14px; color: var(--soft); }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
 
-<header class="nav wrap">
-  <a class="brand" href="#top" aria-label="Printable Notebook Generator, home">
-    <svg width="26" height="32" viewBox="0 0 26 32" aria-hidden="true"><rect x=".75" y=".75" width="24.5" height="30.5" rx="2" fill="#fffdf8" stroke="#1c2330" stroke-width="1.5"/><path d="M7 1v30" stroke="#d5503f" stroke-width="1.2"/><path d="M10 9h12M10 14h12M10 19h12M10 24h12" stroke="#1c2330" stroke-width="1" opacity=".45"/></svg>
-    Printable Notebook Generator
-  </a>
+<header class="top wrap">
+  <a class="brand" href="#top"><b>DG</b>DocGonzo Labs</a>
   <nav aria-label="Main">
-    <a href="#rulings">Rulings</a>
-    <a href="#how">How it works</a>
-    <a href="#printing">Printing tips</a>
-    <a class="btn" href="#top">Make a page</a>
+    <a href="#chroma">Chroma Lab</a>
+    <a href="#journal">Journal Lab</a>
+    <a href="#cover">Cover Lab</a>
+    <a class="gh" href="https://github.com/DocGonzo420">GitHub</a>
   </nav>
 </header>
 
 <main id="top">
-  <div class="hero wrap">
-    <div>
-      <span class="label">Free · in your browser · no account</span>
-      <h1>Rule your <em>own</em> paper.</h1>
-      <p class="lede">Lined, dotted, squared or staved. Set the ruling, the page size and the spacing to the millimetre, then print a single sheet or a whole notebook's worth.</p>
-
-      <div class="panel" role="group" aria-label="Page settings">
-        <div class="row"><span class="label" id="l-type">Ruling</span><div class="chips" id="c-type" role="group" aria-labelledby="l-type"></div></div>
-        <div class="row"><span class="label" id="l-size">Size</span><div class="chips" id="c-size" role="group" aria-labelledby="l-size"></div></div>
-        <div class="row"><label class="label" for="spacing">Spacing</label><div class="range"><input id="spacing" type="range" min="4" max="10" step="0.5" value="5"><output id="spacing-out" for="spacing">5 mm</output></div></div>
-        <div class="row"><span class="label" id="l-ink">Ink</span><div class="chips" id="c-ink" role="group" aria-labelledby="l-ink"></div></div>
-      </div>
-
-      <div class="actions">
-        <button class="btn" id="print" type="button">Print this page</button>
-        <small>or choose “Save as PDF” in the print dialog</small>
-      </div>
+  <section class="hero wrap">
+    <svg class="reg" width="56" height="56" viewBox="0 0 56 56" fill="none" stroke="#14171d" stroke-width="1.2" aria-hidden="true"><circle cx="28" cy="28" r="14"/><circle cx="28" cy="28" r="5" fill="#14171d"/><path d="M28 0v56M0 28h56"/></svg>
+    <div class="strip" aria-hidden="true">
+      <i style="background:#00a3e0"></i><i style="background:#e6007e"></i><i style="background:#ffd400"></i><i style="background:#14171d"></i><i style="background:#2346cc"></i><i style="background:#7fd1ef"></i><i style="background:#f27fbe"></i><i style="background:#ffe97f"></i><i style="background:#898b8e"></i>
     </div>
-
-    <div class="stage">
-      <div class="sheet"><svg id="preview" role="img" aria-labelledby="spec"></svg></div>
-      <p class="spec" id="spec" aria-live="polite"></p>
-    </div>
-  </div>
-
-  <section id="rulings" class="band">
-    <div class="wrap">
-      <span class="label">Rulings</span>
-      <h2>Six pages to start from</h2>
-      <p class="intro">Pick one to load it into the generator above, then adjust it until it suits your pen and your handwriting.</p>
-      <div class="gallery" id="gallery"></div>
+    <h1>Small tools for <a href="#chroma" style="--c:var(--magenta)">color</a>, <a href="#journal" style="--c:var(--cyan)">paper</a> and <a href="#cover" style="--c:var(--yellow)">print</a>.</h1>
+    <div class="hero-foot">
+      <p class="lede">Free web apps that run in your browser. Install any of them to your phone's home screen and they work offline.</p>
+      <ul class="index">
+        <li><a href="#chroma"><span class="mono">01</span><strong>Chroma Lab</strong><span class="mono">Color</span></a></li>
+        <li><a href="#journal"><span class="mono">02</span><strong>Journal Lab</strong><span class="mono">Paper</span></a></li>
+        <li><a href="#cover"><span class="mono">03</span><strong>Cover Lab</strong><span class="mono">Print</span></a></li>
+      </ul>
     </div>
   </section>
 
-  <section id="how">
+  <section class="tool chroma" id="chroma">
     <div class="wrap">
-      <span class="label">How it works</span>
-      <h2>From blank to bound in three steps</h2>
-      <p class="intro">Nothing to install and nothing to sign up for. The page is drawn in your browser and sent straight to your printer.</p>
-      <ol class="steps">
-        <li><h3>Choose a ruling</h3><p>Lined for writing, dots for planning, squares for sums, staves for songs.</p></li>
-        <li><h3>Set it to fit</h3><p>Pick A4, Letter or A5 and slide the spacing from 4&nbsp;mm to 10&nbsp;mm. The preview updates as you go.</p></li>
-        <li><h3>Print and bind</h3><p>Print as many copies as you need, then staple, punch or clip them into a notebook.</p></li>
-      </ol>
-    </div>
-  </section>
-
-  <section id="printing" class="band">
-    <div class="wrap faq">
-      <div>
-        <span class="label">Printing tips</span>
-        <h2>Get the spacing you asked for</h2>
-        <p class="intro">Pages are drawn as vectors at true size, so a 5&nbsp;mm grid measures 5&nbsp;mm, provided your printer isn't told to rescale it.</p>
+      <div class="copy">
+        <div class="kicker"><img src="https://docgonzolabs.com/Chroma-Lab/icons/icon-192.png" alt=""><span class="mono">01 / Color</span></div>
+        <h2>Chroma Lab</h2>
+        <p>Color palettes from real photos, or pulled from your own, with HEX, RGB, HSL and CMYK codes.</p>
+        <ul class="facts"><li>Browse by mood and theme</li><li>Your own photos</li><li>Four code formats</li></ul>
+        <a class="btn" href="https://docgonzolabs.com/Chroma-Lab/">Open Chroma Lab</a>
       </div>
-      <div>
-        <details open><summary>Which print settings should I use?</summary><p>Set scale to 100% (sometimes called “Actual size”), turn off “Fit to page”, and switch off headers and footers. Match the paper size in the dialog to the size you picked here.</p></details>
-        <details><summary>Can I save a PDF instead of printing?</summary><p>Yes. Choose “Save as PDF” as the destination in your browser's print dialog. The PDF keeps the lines as vectors, so it stays sharp at any zoom.</p></details>
-        <details><summary>How do I print on both sides?</summary><p>Set the number of copies you want and turn on two-sided printing in the dialog. Every ruling is centred on the sheet, so front and back line up.</p></details>
-        <details><summary>Why is there a blank border around the ruling?</summary><p>Most home printers can't print to the edge of the sheet. The ruling stops 8&nbsp;mm short so nothing gets cut off.</p></details>
+      <div class="demo">
+        <div class="photo-card">
+          <svg viewBox="0 0 400 230" role="img" aria-label="Illustrated landscape that the palette below is taken from">
+            <rect width="400" height="230" data-c="0"/>
+            <circle cx="282" cy="92" r="34" data-c="1"/>
+            <path d="M0 150 70 84l48 42 62-70 76 78 54-40 90 66v70H0z" data-c="2"/>
+            <path d="M0 176 96 118l60 44 84-58 160 82v44H0z" data-c="3"/>
+            <path d="M0 178h400v52H0z" data-c="4"/>
+            <path d="M0 230v-22c40-14 92-10 140 4 58 16 150 14 260-10v28z" data-c="5"/>
+          </svg>
+          <div class="bar" id="bar"></div>
+          <ul class="codes" id="codes" aria-live="polite"></ul>
+        </div>
+        <div class="chips" role="group" aria-label="Color code format">
+          <span id="formats" style="display:contents"></span>
+          <button class="chip push" id="next-photo" type="button"><span>Next palette</span></button>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="closing">
+  <section class="tool journal flip" id="journal">
     <div class="wrap">
-      <h2>Your next notebook is<br>one print away.</h2>
-      <p class="intro" style="margin-inline:auto">Load the paper tray and make the first page.</p>
-      <a class="btn" href="#top">Make a page</a>
+      <div class="copy">
+        <div class="kicker"><img src="https://docgonzolabs.com/Journal-Lab/icons/icon-192.png" alt=""><span class="mono">02 / Paper</span></div>
+        <h2>Journal Lab</h2>
+        <p>Printable dot grid, ruled, planner and tracker pages at any size, laid out on US Letter or A4 with cut marks.</p>
+        <ul class="facts"><li>A5, A6, B6, Field Notes, Traveler's</li><li>Booklet spreads</li><li>Download as PDF</li></ul>
+        <a class="btn" href="https://docgonzolabs.com/Journal-Lab/">Open Journal Lab</a>
+      </div>
+      <div class="demo">
+        <div class="sheet"><svg id="sheet" role="img" aria-labelledby="sheet-cap"></svg></div>
+        <div class="chips" id="templates" role="group" aria-label="Page template"></div>
+        <p class="caption" id="sheet-cap"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="tool cover" id="cover">
+    <div class="wrap">
+      <div class="copy">
+        <div class="kicker"><img src="https://docgonzolabs.com/Journal-Lab/cover-lab/icons/icon-192.png" alt=""><span class="mono">03 / Print</span></div>
+        <h2>Cover Lab</h2>
+        <p>Generative abstract art covers for notebooks at real print sizes, saved as PNG or PDF.</p>
+        <ul class="facts"><li>14 art styles</li><li>Same seed, same art</li><li>Wraparound and bleed</li></ul>
+        <a class="btn" href="https://docgonzolabs.com/Journal-Lab/cover-lab/">Open Cover Lab</a>
+      </div>
+      <div class="demo">
+        <div class="art"><svg id="art" viewBox="0 0 110 142" role="img" aria-label="Generated flow-style cover art"></svg></div>
+        <div class="chips" role="group" aria-label="Cover color">
+          <span id="inks" style="display:contents"></span>
+          <button class="chip push" id="vary" type="button"><span>New variation</span></button>
+        </div>
+        <p class="caption" id="seed"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how wrap">
+    <h2>Nothing to buy, nothing to install unless you want to.</h2>
+    <div class="trio">
+      <div style="--c:var(--cyan)"><h3>Free</h3><p>All three labs are free to use.</p></div>
+      <div style="--c:var(--magenta)"><h3>In your browser</h3><p>Open a lab and start working. They run on phone, tablet and desktop.</p></div>
+      <div style="--c:var(--yellow)"><h3>Offline on your phone</h3><p>Add a lab to your home screen and it keeps working without a connection.</p></div>
     </div>
   </section>
 </main>
 
 <footer class="wrap">
-  <span>© 2026 Printable Notebook Generator</span>
-  <span>Made for people who still like paper.</span>
+  <span>© DocGonzo Labs</span>
+  <a href="https://github.com/DocGonzo420">Code on GitHub</a>
 </footer>
-
-<div id="print-root" aria-hidden="true"><svg id="print-svg"></svg></div>
 
 <script>
 (() => {
-  const TYPES = {
-    lined:   { name: 'Lined',     note: 'Ruled lines with a red margin, for everyday writing.' },
-    dot:     { name: 'Dot grid',  note: 'Quiet dots for journals, planners and sketches.' },
-    graph:   { name: 'Graph',     note: 'Squares with a heavier line every fifth, for maths and plans.' },
-    cornell: { name: 'Cornell',   note: 'Cue column, notes area and summary box for study notes.' },
-    iso:     { name: 'Isometric', note: 'A triangular grid for 3D drawings and diagrams.' },
-    music:   { name: 'Music',     note: 'Five-line staves for writing out a tune.' },
-  };
-  const SIZES = { A4: [210, 297], Letter: [215.9, 279.4], A5: [148, 210] };
-  const INKS = { Graphite: '#8d939c', Blue: '#6f9bc6', Sepia: '#b3916c' };
-  const RED = '#dd7468';
-  const M = 8; // unprintable border, mm
-  const state = { type: 'dot', size: 'A4', s: 5, ink: 'Graphite' };
-  let uid = 0;
-
-  const r = n => Math.round(n * 100) / 100;
-  const seg = (x1, y1, x2, y2) => `M${r(x1)} ${r(y1)}L${r(x2)} ${r(y2)}`;
-
-  function draw(svg, { type, w, h, s, ink }) {
-    const x0 = M, x1 = w - M, y0 = M, y1 = h - M;
-    let thin = '', bold = '', red = '', dots = '', extra = '';
-    if (type === 'lined') {
-      for (let y = y0 + 22; y <= y1; y += s) thin += seg(x0, y, x1, y);
-      const mx = Math.round(w * 0.15);
-      red = seg(mx, 0, mx, h);
-    } else if (type === 'dot') {
-      const nx = Math.floor((w - 2 * M) / s), ny = Math.floor((h - 2 * M) / s);
-      const ox = (w - nx * s) / 2, oy = (h - ny * s) / 2;
-      for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) dots += `M${r(ox + i * s)} ${r(oy + j * s)}h0`;
-    } else if (type === 'graph') {
-      const nx = Math.floor((w - 2 * M) / s), ny = Math.floor((h - 2 * M) / s);
-      const ox = (w - nx * s) / 2, oy = (h - ny * s) / 2;
-      for (let i = 0; i <= nx; i++) { const p = seg(ox + i * s, oy, ox + i * s, oy + ny * s); i % 5 ? thin += p : bold += p; }
-      for (let j = 0; j <= ny; j++) { const p = seg(ox, oy + j * s, ox + nx * s, oy + j * s); j % 5 ? thin += p : bold += p; }
-    } else if (type === 'cornell') {
-      const top = y0 + 18, sum = y1 - Math.round(h * 0.17), cue = x0 + Math.round((w - 2 * M) * 0.3);
-      bold = seg(x0, top, x1, top) + seg(x0, sum, x1, sum) + seg(cue, top, cue, sum);
-      for (let y = top + s; y < sum - 1; y += s) thin += seg(cue, y, x1, y);
-      for (let y = sum + s; y <= y1; y += s) thin += seg(x0, y, x1, y);
-    } else if (type === 'iso') {
-      const dx = s * Math.sqrt(3) / 2, t = Math.tan(Math.PI / 6);
-      const nx = Math.floor((w - 2 * M) / dx), ny = Math.floor((h - 2 * M) / s);
-      const gw = nx * dx, gh = ny * s, ox = (w - gw) / 2, oy = (h - gh) / 2;
-      for (let i = 0; i <= nx; i++) thin += seg(ox + i * dx, oy, ox + i * dx, oy + gh);
-      for (let c = oy - Math.ceil(gw * t / s) * s; c <= oy + gh; c += s) thin += seg(ox, c, ox + gw, c + gw * t);
-      for (let c = oy; c <= oy + gh + gw * t; c += s) thin += seg(ox, c, ox + gw, c - gw * t);
-      const id = 'clip' + (++uid);
-      extra = `<clipPath id="${id}"><rect x="${r(ox)}" y="${r(oy)}" width="${r(gw)}" height="${r(gh)}"/></clipPath>`;
-      svg.dataset.clip = id;
-    } else if (type === 'music') {
-      const g = s * 0.35, block = g * 4 + s * 2.2;
-      const n = Math.floor((h - 2 * M - 14 + s * 2.2) / block);
-      const oy = (h - (n * block - s * 2.2)) / 2;
-      for (let k = 0; k < n; k++) for (let i = 0; i < 5; i++) thin += seg(x0 + 4, oy + k * block + i * g, x1 - 4, oy + k * block + i * g);
-    }
-    const clip = type === 'iso' ? ` clip-path="url(#${svg.dataset.clip})"` : '';
-    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    svg.innerHTML = extra +
-      `<path d="${thin}" fill="none" stroke="${ink}" stroke-width=".3"${clip}/>` +
-      `<path d="${bold}" fill="none" stroke="${ink}" stroke-width=".6"/>` +
-      `<path d="${red}" fill="none" stroke="${RED}" stroke-width=".4"/>` +
-      `<path d="${dots}" fill="none" stroke="${ink}" stroke-width=".75" stroke-linecap="round"/>`;
-  }
-
   const $ = id => document.getElementById(id);
-  const fmt = n => String(n).replace(/\.0$/, '');
+  const chip = (host, label, on) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.innerHTML = `<span>${label}</span>`;
+    b.addEventListener('click', on); host.append(b); return b;
+  };
+  const press = (host, i) => [...host.querySelectorAll('.chip')].forEach((b, j) => b.setAttribute('aria-pressed', String(i === j)));
 
-  function render() {
-    const [w, h] = SIZES[state.size];
-    const opts = { type: state.type, w, h, s: state.s, ink: INKS[state.ink] };
-    draw($('preview'), opts);
-    draw($('print-svg'), opts);
-    $('print-svg').setAttribute('width', w + 'mm');
-    $('print-svg').setAttribute('height', h + 'mm');
-    $('page-size').textContent = `@page { size: ${w}mm ${h}mm; margin: 0; }`;
-    $('spacing-out').textContent = fmt(state.s) + ' mm';
-    $('spec').textContent = `${state.size} · ${fmt(w)} × ${fmt(h)} mm · ${TYPES[state.type].name.toLowerCase()} at ${fmt(state.s)} mm`;
-    document.querySelectorAll('[data-k]').forEach(b => b.setAttribute('aria-pressed', String(state[b.dataset.k] === b.dataset.v)));
+  /* ---------- Chroma: palette + code formats ---------- */
+  const PALETTES = [
+    ['#f2b880', '#fbe3b5', '#b5657a', '#5b3a5e', '#2d4a6b', '#1b2233'],
+    ['#bfe3ea', '#fff4d6', '#6fb3b8', '#2f7f86', '#1c5a7a', '#e6c79c'],
+    ['#dfe5e1', '#f4f1e6', '#a9b8ac', '#6f8a76', '#3f5a4a', '#1f2f28'],
+  ];
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const FORMATS = {
+    HEX: h => h.toUpperCase(),
+    RGB: h => rgb(h).join(' '),
+    HSL: h => {
+      const [r, g, b] = rgb(h).map(v => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2;
+      const s = d ? d / (1 - Math.abs(2 * l - 1)) : 0;
+      const hue = !d ? 0 : mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      return `${Math.round(hue * 60)}° ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+    },
+    CMYK: h => {
+      const [r, g, b] = rgb(h).map(v => v / 255), k = 1 - Math.max(r, g, b);
+      return [r, g, b].map(v => k === 1 ? 0 : Math.round((1 - v - k) / (1 - k) * 100)).concat(Math.round(k * 100)).join(' ');
+    },
+  };
+  let pal = 0, fmt = 'HEX';
+  function chroma() {
+    const p = PALETTES[pal];
+    document.querySelectorAll('[data-c]').forEach(el => el.setAttribute('fill', p[el.dataset.c]));
+    $('bar').innerHTML = p.map(c => `<i style="background:${c}"></i>`).join('');
+    $('codes').innerHTML = p.map(c => `<li><i style="background:${c}"></i>${FORMATS[fmt](c)}</li>`).join('');
+    press($('formats'), Object.keys(FORMATS).indexOf(fmt));
   }
+  Object.keys(FORMATS).forEach(f => chip($('formats'), f, () => { fmt = f; chroma(); }));
+  $('next-photo').addEventListener('click', () => { pal = (pal + 1) % PALETTES.length; chroma(); });
+  chroma();
 
-  function chips(host, key, entries, swatch) {
-    for (const [v, label] of entries) {
-      const b = document.createElement('button');
-      b.type = 'button'; b.dataset.k = key; b.dataset.v = v;
-      if (swatch) { b.className = 'swatch'; b.style.background = INKS[v]; b.title = v; b.setAttribute('aria-label', v); }
-      else { b.className = 'chip'; b.textContent = label; }
-      b.addEventListener('click', () => { state[key] = v; render(); });
-      $(host).append(b);
+  /* ---------- Journal: A5 page on a US Letter sheet with cut marks ---------- */
+  const TEMPLATES = { 'Dot grid': 'dot', 'Ruled': 'ruled', 'Square grid': 'grid', 'Cornell': 'cornell' };
+  const r = n => Math.round(n * 100) / 100, seg = (a, b, c, d) => `M${r(a)} ${r(b)}L${r(c)} ${r(d)}`;
+  function journal(name) {
+    const W = 215.9, H = 279.4, pw = 148, ph = 210, px = (W - pw) / 2, py = (H - ph) / 2, m = 9, s = 5;
+    const x0 = px + m, x1 = px + pw - m, y0 = py + m, y1 = py + ph - m, t = TEMPLATES[name];
+    let thin = '', bold = '', dots = '', cuts = '';
+    for (const [cx, sx] of [[px, -1], [px + pw, 1]]) for (const [cy, sy] of [[py, -1], [py + ph, 1]])
+      cuts += seg(cx + sx * 3, cy, cx + sx * 11, cy) + seg(cx, cy + sy * 3, cx, cy + sy * 11);
+    const nx = Math.floor((x1 - x0) / s), ny = Math.floor((y1 - y0) / s), ox = px + (pw - nx * s) / 2, oy = py + (ph - ny * s) / 2;
+    if (t === 'dot') for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) dots += `M${r(ox + i * s)} ${r(oy + j * s)}h0`;
+    if (t === 'grid') {
+      for (let i = 0; i <= nx; i++) thin += seg(ox + i * s, oy, ox + i * s, oy + ny * s);
+      for (let j = 0; j <= ny; j++) thin += seg(ox, oy + j * s, ox + nx * s, oy + j * s);
     }
+    if (t === 'ruled') for (let y = y0 + 14; y <= y1; y += 7) thin += seg(x0, y, x1, y);
+    if (t === 'cornell') {
+      const top = y0 + 14, sum = y1 - 36, cue = x0 + 40;
+      bold = seg(x0, top, x1, top) + seg(x0, sum, x1, sum) + seg(cue, top, cue, sum);
+      for (let y = top + 7; y < sum - 1; y += 7) thin += seg(cue, y, x1, y);
+      for (let y = sum + 7; y <= y1; y += 7) thin += seg(x0, y, x1, y);
+    }
+    const ink = '#8b93a3';
+    $('sheet').setAttribute('viewBox', `0 0 ${W} ${H}`);
+    $('sheet').innerHTML =
+      `<path d="${cuts}" stroke="#14171d" stroke-width=".35" fill="none"/>` +
+      `<path d="${thin}" stroke="${ink}" stroke-width=".3" fill="none"/>` +
+      `<path d="${bold}" stroke="${ink}" stroke-width=".6" fill="none"/>` +
+      `<path d="${dots}" stroke="${ink}" stroke-width=".8" stroke-linecap="round" fill="none"/>`;
+    $('sheet-cap').textContent = `A5 · 148 × 210 mm | US Letter portrait · ${name.toLowerCase()} · 4 cuts`;
+    press($('templates'), Object.keys(TEMPLATES).indexOf(name));
   }
-  chips('c-type', 'type', Object.entries(TYPES).map(([k, t]) => [k, t.name]));
-  chips('c-size', 'size', Object.keys(SIZES).map(k => [k, k]));
-  chips('c-ink', 'ink', Object.keys(INKS).map(k => [k, k]), true);
+  Object.keys(TEMPLATES).forEach(n => chip($('templates'), n, () => journal(n)));
+  journal('Dot grid');
 
-  $('spacing').addEventListener('input', e => { state.s = +e.target.value; render(); });
-  $('print').addEventListener('click', () => window.print());
-
-  for (const [k, t] of Object.entries(TYPES)) {
-    const card = document.createElement('button');
-    card.type = 'button'; card.className = 'card';
-    card.innerHTML = `<svg aria-hidden="true"></svg><div><h3>${t.name}</h3><p>${t.note}</p></div>`;
-    const svg = card.firstChild;
-    draw(svg, { type: k, w: 148, h: 210, s: 5, ink: INKS.Graphite });
-    svg.setAttribute('viewBox', '0 0 148 92');
-    card.addEventListener('click', () => { state.type = k; render(); $('top').scrollIntoView(); });
-    $('gallery').append(card);
+  /* ---------- Cover: seeded flow-field art ---------- */
+  const INKS = {
+    Riso:   { bg: '#efe9e1', c: ['#f25c6a', '#1f6fc4', '#f6c833', '#13a35b', '#2a2a2a'] },
+    Pine:   { bg: '#efe6d2', c: ['#1f4d3a', '#4f8a5b', '#c8742c', '#8a3b22', '#e0b040'] },
+    Indigo: { bg: '#f1eee8', c: ['#1b2a5c', '#3d5fa8', '#8fb0d9', '#e07b39', '#c9d3e6'] },
+  };
+  let seed = 482913, ink = 'Riso';
+  function art() {
+    let a = seed;
+    const rnd = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const P = Array.from({ length: 6 }, () => rnd() * 6.283), f = 0.02 + rnd() * 0.022, { bg, c } = INKS[ink];
+    const angle = (x, y) => Math.sin(x * f + P[0]) * Math.cos(y * f * 1.3 + P[1]) * 3.1 + Math.sin((x + y) * f * .7 + P[2]) * 1.6 + P[3];
+    let out = `<rect width="110" height="142" fill="${bg}"/>`;
+    for (let i = 0; i < 330; i++) {
+      let x = rnd() * 130 - 10, y = rnd() * 162 - 10, d = `M${r(x)} ${r(y)}`;
+      const n = 14 + rnd() * 34 | 0;
+      for (let k = 0; k < n; k++) { const t = angle(x, y); x += Math.cos(t) * 1.6; y += Math.sin(t) * 1.6; d += `L${r(x)} ${r(y)}`; }
+      out += `<path d="${d}" fill="none" stroke="${c[rnd() * c.length | 0]}" stroke-width="${r(.35 + Math.pow(rnd(), 2.2) * 2.4)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+    $('art').innerHTML = out;
+    $('seed').textContent = `Flow · ${ink} · seed ${seed}`;
+    press($('inks'), Object.keys(INKS).indexOf(ink));
   }
-  render();
+  Object.keys(INKS).forEach(n => chip($('inks'), n, () => { ink = n; art(); }));
+  $('vary').addEventListener('click', () => { seed = 100000 + Math.floor(Math.random() * 900000); art(); });
+  art();
 })();
 </script>
 </body>
