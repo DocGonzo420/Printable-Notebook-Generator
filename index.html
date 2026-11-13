@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Printable Notebook Generator — rule your own paper</title>
+<meta name="description" content="Make lined, dot grid, graph, Cornell, isometric and music paper in your browser. Pick a ruling, size and spacing, then print or save as PDF.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style id="page-size">@page { size: 210mm 297mm; margin: 0; }</style>
+<style>
+  :root {
+    --desk: #efe9dd;
+    --desk-deep: #e4dccd;
+    --paper: #fffdf8;
+    --ink: #1c2330;
+    --ink-soft: #5a6272;
+    --rule: #cfc6b4;
+    --margin-red: #d5503f;
+    --blue: #2c5a8c;
+    --display: "Fraunces", Georgia, serif;
+    --body: "Instrument Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --gutter: clamp(16px, 5vw, 72px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--desk);
+    color: var(--ink);
+    font: 400 17px/1.55 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* The whole site sits on a ruled sheet: one red margin line down the left. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0 auto 0 calc(var(--gutter) - 20px);
+    width: 1px;
+    background: var(--margin-red);
+    opacity: .45;
+    pointer-events: none;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 4px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--gutter); }
+  .label {
+    font: 500 12px/1 var(--mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  /* Nav */
+  header.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 22px; padding-bottom: 22px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 600 18px/1.1 var(--display); text-decoration: none; }
+  .brand svg { flex: none; }
+  .nav nav { display: flex; align-items: center; gap: 28px; font-size: 15px; }
+  .nav nav a { text-decoration: none; color: var(--ink-soft); }
+  .nav nav a:hover { color: var(--ink); }
+  @media (max-width: 720px) { .nav nav a:not(.btn) { display: none; } }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 600 15px/1 var(--body);
+    padding: 13px 20px;
+    border-radius: 999px;
+    border: 1.5px solid var(--ink);
+    background: var(--ink); color: var(--paper);
+    text-decoration: none; cursor: pointer;
+    transition: transform .15s, background .15s;
+  }
+  .btn:hover { background: #000; transform: translateY(-1px); }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn.ghost:hover { background: rgba(28,35,48,.07); }
+  .nav nav a.btn { color: var(--paper); padding: 10px 16px; font-size: 14px; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(28px, 5vw, 72px); align-items: center; padding-top: clamp(24px, 5vw, 56px); padding-bottom: clamp(56px, 8vw, 104px); }
+  h1 { font: 600 clamp(44px, 7.2vw, 92px)/.98 var(--display); letter-spacing: -.025em; margin: 14px 0 20px; text-wrap: balance; }
+  h1 em { font-style: italic; font-weight: 400; color: var(--blue); }
+  .lede { font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-soft); max-width: 34em; margin: 0 0 30px; }
+
+  .panel { border-top: 1px solid var(--rule); display: grid; }
+  .row { display: grid; grid-template-columns: 92px 1fr; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font: 500 14px/1 var(--body); color: var(--ink);
+    padding: 8px 12px; border-radius: 999px;
+    border: 1px solid var(--rule); background: transparent; cursor: pointer;
+  }
+  .chip:hover { border-color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .swatch { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 2px solid var(--desk); box-shadow: 0 0 0 1px var(--rule); cursor: pointer; }
+  .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+  .range { display: flex; align-items: center; gap: 14px; }
+  .range input { flex: 1; accent-color: var(--ink); min-width: 0; }
+  .range output { font: 500 14px/1 var(--mono); min-width: 5.5ch; text-align: right; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 24px; }
+  .actions small { color: var(--ink-soft); font-size: 14px; }
+
+  .stage { display: grid; justify-items: center; gap: 18px; }
+  .sheet {
+    position: relative; width: min(100%, 430px);
+    background: var(--paper);
+    box-shadow: 0 1px 0 #fff inset, 0 1px 2px rgba(40,30,10,.18), 0 18px 40px -18px rgba(40,30,10,.35);
+  }
+  .sheet::before, .sheet::after {
+    content: ""; position: absolute; inset: 0; background: var(--paper); z-index: -1;
+    box-shadow: 0 1px 2px rgba(40,30,10,.18);
+  }
+  .sheet::before { transform: rotate(-2.2deg) translate(-6px, 4px); }
+  .sheet::after { transform: rotate(1.4deg) translate(5px, 3px); }
+  .sheet svg { display: block; width: 100%; height: auto; }
+  .spec { font: 400 13px/1.3 var(--mono); color: var(--ink-soft); text-align: center; }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+    .sheet { width: min(100%, 340px); }
+  }
+  @media (max-width: 420px) { .row { grid-template-columns: 1fr; gap: 8px; } }
+
+  /* Sections */
+  section { padding: clamp(56px, 8vw, 104px) 0; }
+  .band { background: var(--desk-deep); }
+  h2 { font: 600 clamp(30px, 4vw, 48px)/1.05 var(--display); letter-spacing: -.02em; margin: 12px 0 14px; text-wrap: balance; }
+  .intro { color: var(--ink-soft); max-width: 36em; margin: 0 0 40px; }
+
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 22px; }
+  .card {
+    display: block; text-align: left; padding: 0; font: inherit; color: inherit; cursor: pointer;
+    background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden;
+    transition: transform .18s, box-shadow .18s;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 14px 28px -16px rgba(40,30,10,.4); }
+  .card svg { display: block; width: 100%; height: auto; border-bottom: 1px solid var(--rule); }
+  .card div { padding: 16px 18px 18px; }
+  .card h3 { font: 600 20px/1.2 var(--display); margin: 0 0 4px; }
+  .card p { margin: 0; font-size: 15px; color: var(--ink-soft); }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 32px; counter-reset: s; }
+  .steps li { counter-increment: s; border-top: 1.5px solid var(--ink); padding-top: 16px; }
+  .steps li::before { content: "0" counter(s); font: 500 13px/1 var(--mono); color: var(--margin-red); }
+  .steps h3 { font: 600 22px/1.2 var(--display); margin: 10px 0 6px; }
+  .steps p { margin: 0; color: var(--ink-soft); }
+
+  .faq { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 72px); }
+  @media (max-width: 860px) { .faq { grid-template-columns: 1fr; } }
+  details { border-bottom: 1px solid var(--rule); }
+  details:first-of-type { border-top: 1px solid var(--rule); }
+  summary { cursor: pointer; list-style: none; padding: 18px 0; font-weight: 600; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font: 400 22px/1 var(--mono); color: var(--ink-soft); }
+  details[open] summary::after { content: "–"; }
+  details p { margin: 0 0 20px; color: var(--ink-soft); max-width: 40em; }
+
+  .closing { text-align: center; }
+  .closing h2 { font-size: clamp(36px, 6vw, 72px); }
+  footer { border-top: 1px solid var(--rule); padding-top: 26px; padding-bottom: 40px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--ink-soft); }
+
+  #print-root { display: none; }
+  @media print {
+    body { background: #fff; }
+    body::before, body > *:not(#print-root) { display: none !important; }
+    #print-root { display: block; }
+    #print-root svg { display: block; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<header class="nav wrap">
+  <a class="brand" href="#top" aria-label="Printable Notebook Generator, home">
+    <svg width="26" height="32" viewBox="0 0 26 32" aria-hidden="true"><rect x=".75" y=".75" width="24.5" height="30.5" rx="2" fill="#fffdf8" stroke="#1c2330" stroke-width="1.5"/><path d="M7 1v30" stroke="#d5503f" stroke-width="1.2"/><path d="M10 9h12M10 14h12M10 19h12M10 24h12" stroke="#1c2330" stroke-width="1" opacity=".45"/></svg>
+    Printable Notebook Generator
+  </a>
+  <nav aria-label="Main">
+    <a href="#rulings">Rulings</a>
+    <a href="#how">How it works</a>
+    <a href="#printing">Printing tips</a>
+    <a class="btn" href="#top">Make a page</a>
+  </nav>
+</header>
+
+<main id="top">
+  <div class="hero wrap">
+    <div>
+      <span class="label">Free · in your browser · no account</span>
+      <h1>Rule your <em>own</em> paper.</h1>
+      <p class="lede">Lined, dotted, squared or staved. Set the ruling, the page size and the spacing to the millimetre, then print a single sheet or a whole notebook's worth.</p>
+
+      <div class="panel" role="group" aria-label="Page settings">
+        <div class="row"><span class="label" id="l-type">Ruling</span><div class="chips" id="c-type" role="group" aria-labelledby="l-type"></div></div>
+        <div class="row"><span class="label" id="l-size">Size</span><div class="chips" id="c-size" role="group" aria-labelledby="l-size"></div></div>
+        <div class="row"><label class="label" for="spacing">Spacing</label><div class="range"><input id="spacing" type="range" min="4" max="10" step="0.5" value="5"><output id="spacing-out" for="spacing">5 mm</output></div></div>
+        <div class="row"><span class="label" id="l-ink">Ink</span><div class="chips" id="c-ink" role="group" aria-labelledby="l-ink"></div></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="print" type="button">Print this page</button>
+        <small>or choose “Save as PDF” in the print dialog</small>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="sheet"><svg id="preview" role="img" aria-labelledby="spec"></svg></div>
+      <p class="spec" id="spec" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <section id="rulings" class="band">
+    <div class="wrap">
+      <span class="label">Rulings</span>
+      <h2>Six pages to start from</h2>
+      <p class="intro">Pick one to load it into the generator above, then adjust it until it suits your pen and your handwriting.</p>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <span class="label">How it works</span>
+      <h2>From blank to bound in three steps</h2>
+      <p class="intro">Nothing to install and nothing to sign up for. The page is drawn in your browser and sent straight to your printer.</p>
+      <ol class="steps">
+        <li><h3>Choose a ruling</h3><p>Lined for writing, dots for planning, squares for sums, staves for songs.</p></li>
+        <li><h3>Set it to fit</h3><p>Pick A4, Letter or A5 and slide the spacing from 4&nbsp;mm to 10&nbsp;mm. The preview updates as you go.</p></li>
+        <li><h3>Print and bind</h3><p>Print as many copies as you need, then staple, punch or clip them into a notebook.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="printing" class="band">
+    <div class="wrap faq">
+      <div>
+        <span class="label">Printing tips</span>
+        <h2>Get the spacing you asked for</h2>
+        <p class="intro">Pages are drawn as vectors at true size, so a 5&nbsp;mm grid measures 5&nbsp;mm, provided your printer isn't told to rescale it.</p>
+      </div>
+      <div>
+        <details open><summary>Which print settings should I use?</summary><p>Set scale to 100% (sometimes called “Actual size”), turn off “Fit to page”, and switch off headers and footers. Match the paper size in the dialog to the size you picked here.</p></details>
+        <details><summary>Can I save a PDF instead of printing?</summary><p>Yes. Choose “Save as PDF” as the destination in your browser's print dialog. The PDF keeps the lines as vectors, so it stays sharp at any zoom.</p></details>
+        <details><summary>How do I print on both sides?</summary><p>Set the number of copies you want and turn on two-sided printing in the dialog. Every ruling is centred on the sheet, so front and back line up.</p></details>
+        <details><summary>Why is there a blank border around the ruling?</summary><p>Most home printers can't print to the edge of the sheet. The ruling stops 8&nbsp;mm short so nothing gets cut off.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="wrap">
+      <h2>Your next notebook is<br>one print away.</h2>
+      <p class="intro" style="margin-inline:auto">Load the paper tray and make the first page.</p>
+      <a class="btn" href="#top">Make a page</a>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <span>© 2026 Printable Notebook Generator</span>
+  <span>Made for people who still like paper.</span>
+</footer>
+
+<div id="print-root" aria-hidden="true"><svg id="print-svg"></svg></div>
+
+<script>
+(() => {
+  const TYPES = {
+    lined:   { name: 'Lined',     note: 'Ruled lines with a red margin, for everyday writing.' },
+    dot:     { name: 'Dot grid',  note: 'Quiet dots for journals, planners and sketches.' },
+    graph:   { name: 'Graph',     note: 'Squares with a heavier line every fifth, for maths and plans.' },
+    cornell: { name: 'Cornell',   note: 'Cue column, notes area and summary box for study notes.' },
+    iso:     { name: 'Isometric', note: 'A triangular grid for 3D drawings and diagrams.' },
+    music:   { name: 'Music',     note: 'Five-line staves for writing out a tune.' },
+  };
+  const SIZES = { A4: [210, 297], Letter: [215.9, 279.4], A5: [148, 210] };
+  const INKS = { Graphite: '#8d939c', Blue: '#6f9bc6', Sepia: '#b3916c' };
+  const RED = '#dd7468';
+  const M = 8; // unprintable border, mm
+  const state = { type: 'dot', size: 'A4', s: 5, ink: 'Graphite' };
+  let uid = 0;
+
+  const r = n => Math.round(n * 100) / 100;
+  const seg = (x1, y1, x2, y2) => `M${r(x1)} ${r(y1)}L${r(x2)} ${r(y2)}`;
+
+  function draw(svg, { type, w, h, s, ink }) {
+    const x0 = M, x1 = w - M, y0 = M, y1 = h - M;
+    let thin = '', bold = '', red = '', dots = '', extra = '';
+    if (type === 'lined') {
+      for (let y = y0 + 22; y <= y1; y += s) thin += seg(x0, y, x1, y);
+      const mx = Math.round(w * 0.15);
+      red = seg(mx, 0, mx, h);
+    } else if (type === 'dot') {
+      const nx = Math.floor((w - 2 * M) / s), ny = Math.floor((h - 2 * M) / s);
+      const ox = (w - nx * s) / 2, oy = (h - ny * s) / 2;
+      for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) dots += `M${r(ox + i * s)} ${r(oy + j * s)}h0`;
+    } else if (type === 'graph') {
+      const nx = Math.floor((w - 2 * M) / s), ny = Math.floor((h - 2 * M) / s);
+      const ox = (w - nx * s) / 2, oy = (h - ny * s) / 2;
+      for (let i = 0; i <= nx; i++) { const p = seg(ox + i * s, oy, ox + i * s, oy + ny * s); i % 5 ? thin += p : bold += p; }
+      for (let j = 0; j <= ny; j++) { const p = seg(ox, oy + j * s, ox + nx * s, oy + j * s); j % 5 ? thin += p : bold += p; }
+    } else if (type === 'cornell') {
+      const top = y0 + 18, sum = y1 - Math.round(h * 0.17), cue = x0 + Math.round((w - 2 * M) * 0.3);
+      bold = seg(x0, top, x1, top) + seg(x0, sum, x1, sum) + seg(cue, top, cue, sum);
+      for (let y = top + s; y < sum - 1; y += s) thin += seg(cue, y, x1, y);
+      for (let y = sum + s; y <= y1; y += s) thin += seg(x0, y, x1, y);
+    } else if (type === 'iso') {
+      const dx = s * Math.sqrt(3) / 2, t = Math.tan(Math.PI / 6);
+      const nx = Math.floor((w - 2 * M) / dx), ny = Math.floor((h - 2 * M) / s);
+      const gw = nx * dx, gh = ny * s, ox = (w - gw) / 2, oy = (h - gh) / 2;
+      for (let i = 0; i <= nx; i++) thin += seg(ox + i * dx, oy, ox + i * dx, oy + gh);
+      for (let c = oy - Math.ceil(gw * t / s) * s; c <= oy + gh; c += s) thin += seg(ox, c, ox + gw, c + gw * t);
+      for (let c = oy; c <= oy + gh + gw * t; c += s) thin += seg(ox, c, ox + gw, c - gw * t);
+      const id = 'clip' + (++uid);
+      extra = `<clipPath id="${id}"><rect x="${r(ox)}" y="${r(oy)}" width="${r(gw)}" height="${r(gh)}"/></clipPath>`;
+      svg.dataset.clip = id;
+    } else if (type === 'music') {
+      const g = s * 0.35, block = g * 4 + s * 2.2;
+      const n = Math.floor((h - 2 * M - 14 + s * 2.2) / block);
+      const oy = (h - (n * block - s * 2.2)) / 2;
+      for (let k = 0; k < n; k++) for (let i = 0; i < 5; i++) thin += seg(x0 + 4, oy + k * block + i * g, x1 - 4, oy + k * block + i * g);
+    }
+    const clip = type === 'iso' ? ` clip-path="url(#${svg.dataset.clip})"` : '';
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.innerHTML = extra +
+      `<path d="${thin}" fill="none" stroke="${ink}" stroke-width=".3"${clip}/>` +
+      `<path d="${bold}" fill="none" stroke="${ink}" stroke-width=".6"/>` +
+      `<path d="${red}" fill="none" stroke="${RED}" stroke-width=".4"/>` +
+      `<path d="${dots}" fill="none" stroke="${ink}" stroke-width=".75" stroke-linecap="round"/>`;
+  }
+
+  const $ = id => document.getElementById(id);
+  const fmt = n => String(n).replace(/\.0$/, '');
+
+  function render() {
+    const [w, h] = SIZES[state.size];
+    const opts = { type: state.type, w, h, s: state.s, ink: INKS[state.ink] };
+    draw($('preview'), opts);
+    draw($('print-svg'), opts);
+    $('print-svg').setAttribute('width', w + 'mm');
+    $('print-svg').setAttribute('height', h + 'mm');
+    $('page-size').textContent = `@page { size: ${w}mm ${h}mm; margin: 0; }`;
+    $('spacing-out').textContent = fmt(state.s) + ' mm';
+    $('spec').textContent = `${state.size} · ${fmt(w)} × ${fmt(h)} mm · ${TYPES[state.type].name.toLowerCase()} at ${fmt(state.s)} mm`;
+    document.querySelectorAll('[data-k]').forEach(b => b.setAttribute('aria-pressed', String(state[b.dataset.k] === b.dataset.v)));
+  }
+
+  function chips(host, key, entries, swatch) {
+    for (const [v, label] of entries) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.k = key; b.dataset.v = v;
+      if (swatch) { b.className = 'swatch'; b.style.background = INKS[v]; b.title = v; b.setAttribute('aria-label', v); }
+      else { b.className = 'chip'; b.textContent = label; }
+      b.addEventListener('click', () => { state[key] = v; render(); });
+      $(host).append(b);
+    }
+  }
+  chips('c-type', 'type', Object.entries(TYPES).map(([k, t]) => [k, t.name]));
+  chips('c-size', 'size', Object.keys(SIZES).map(k => [k, k]));
+  chips('c-ink', 'ink', Object.keys(INKS).map(k => [k, k]), true);
+
+  $('spacing').addEventListener('input', e => { state.s = +e.target.value; render(); });
+  $('print').addEventListener('click', () => window.print());
+
+  for (const [k, t] of Object.entries(TYPES)) {
+    const card = document.createElement('button');
+    card.type = 'button'; card.className = 'card';
+    card.innerHTML = `<svg aria-hidden="true"></svg><div><h3>${t.name}</h3><p>${t.note}</p></div>`;
+    const svg = card.firstChild;
+    draw(svg, { type: k, w: 148, h: 210, s: 5, ink: INKS.Graphite });
+    svg.setAttribute('viewBox', '0 0 148 92');
+    card.addEventListener('click', () => { state.type = k; render(); $('top').scrollIntoView(); });
+    $('gallery').append(card);
+  }
+  render();
+})();
+</script>
+</body>
+</html>
