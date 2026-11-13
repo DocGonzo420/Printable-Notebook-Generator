@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#14171d">
+<meta name="color-scheme" content="dark">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DocGonzo Labs — small tools for color, paper and print</title>
 <meta name="description" content="Free web tools for color, paper and print: Chroma Lab, Journal Lab and Cover Lab.">
@@ -10,15 +12,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f3f5f7;
-    --ink: #14171d;
-    --soft: #5b6472;
-    --line: #d5dae1;
+    --dark: #14171d;
+    --bg: var(--dark);
+    --ink: #f3f5f7;
+    --soft: #9aa3b2;
+    --line: #2b313c;
     --blue: #2346cc;
     --cyan: #00a3e0;
     --magenta: #e6007e;
     --yellow: #ffd400;
-    --cream: #ece8df;
     --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
     --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -36,7 +38,7 @@
   /* Top bar */
   .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 20px; padding-bottom: 20px; }
   .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 14px/1 var(--display); letter-spacing: .08em; text-transform: uppercase; }
-  .brand b { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--ink); color: #fff; font-size: 13px; letter-spacing: 0; }
+  .brand b { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--ink); color: var(--dark); font-size: 13px; letter-spacing: 0; }
   .top nav { display: flex; align-items: center; gap: 26px; font-size: 15px; }
   .top nav a { text-decoration: none; color: var(--soft); }
   .top nav a:hover { color: var(--ink); }
@@ -62,7 +64,8 @@
   @media (max-width: 600px) { .reg { display: none; } }
 
   /* Tool sections */
-  .tool { padding: clamp(56px, 8vw, 112px) 0; }
+  .tool { padding: clamp(56px, 8vw, 112px) 0; border-top: 1px solid var(--line); --btn-bg: var(--ink); --btn-fg: var(--dark); }
+  .tool .kicker .mono { color: var(--c); }
   .tool .wrap { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 6vw, 88px); align-items: center; }
   .tool.flip .copy { order: 2; }
   @media (max-width: 880px) { .tool .wrap { grid-template-columns: 1fr; } .tool.flip .copy { order: 0; } }
@@ -76,9 +79,9 @@
   .btn:hover { transform: translateX(3px); }
   .btn::after { content: "→"; }
 
-  .chroma { background: var(--ink); color: #fff; --btn-bg: #fff; --btn-fg: var(--ink); }
-  .journal { background: var(--blue); color: #fff; --btn-bg: #fff; --btn-fg: var(--blue); }
-  .cover { background: var(--cream); --btn-bg: var(--ink); --btn-fg: #fff; }
+  .chroma { --c: #ff4fa8; }
+  .journal { --c: #3dc1f3; }
+  .cover { --c: var(--yellow); }
 
   .demo { display: grid; gap: 14px; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -86,12 +89,12 @@
   .chip:hover { opacity: 1; }
   .chip[aria-pressed="true"] { opacity: 1; background: currentColor; }
   .chip[aria-pressed="true"] span { color: var(--on); }
-  .chroma .chip { --on: var(--ink); } .journal .chip { --on: var(--blue); } .cover .chip { --on: var(--cream); }
+  .chip { --on: var(--dark); }
   .chips .push { margin-left: auto; }
   .caption { font: 400 13px/1.4 var(--mono); opacity: .7; margin: 0; }
 
   /* Chroma demo */
-  .photo-card { background: #fff; color: var(--ink); border-radius: 14px; overflow: hidden; }
+  .photo-card { background: #fff; color: var(--dark); border-radius: 14px; overflow: hidden; }
   .photo-card svg { display: block; width: 100%; height: auto; }
   .photo-card svg * { transition: fill .35s; }
   .bar { display: grid; grid-template-columns: repeat(6, 1fr); height: 26px; }
@@ -102,13 +105,13 @@
   @media (max-width: 460px) { .codes { grid-template-columns: repeat(2, 1fr); } }
 
   /* Journal demo */
-  .sheet { background: #fff; width: min(100%, 440px); justify-self: center; box-shadow: 0 24px 50px -24px rgba(5,15,60,.7); }
+  .sheet { background: #fff; width: min(100%, 440px); justify-self: center; }
   .sheet svg, .art svg { display: block; width: 100%; height: auto; }
   .journal .demo, .cover .demo { justify-items: center; }
   .journal .chips, .cover .chips { width: min(100%, 440px); }
 
   /* Cover demo */
-  .art { width: min(100%, 400px); box-shadow: 0 2px 4px rgba(40,30,10,.2), 0 28px 50px -26px rgba(40,30,10,.55); border-radius: 3px; overflow: hidden; }
+  .art { width: min(100%, 400px); border-radius: 3px; overflow: hidden; }
   .cover .chips { width: min(100%, 400px); }
 
   /* Closing */
@@ -136,11 +139,11 @@
 
 <main id="top">
   <section class="hero wrap">
-    <svg class="reg" width="56" height="56" viewBox="0 0 56 56" fill="none" stroke="#14171d" stroke-width="1.2" aria-hidden="true"><circle cx="28" cy="28" r="14"/><circle cx="28" cy="28" r="5" fill="#14171d"/><path d="M28 0v56M0 28h56"/></svg>
+    <svg class="reg" width="56" height="56" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="28" cy="28" r="14"/><circle cx="28" cy="28" r="5" fill="currentColor"/><path d="M28 0v56M0 28h56"/></svg>
     <div class="strip" aria-hidden="true">
-      <i style="background:#00a3e0"></i><i style="background:#e6007e"></i><i style="background:#ffd400"></i><i style="background:#14171d"></i><i style="background:#2346cc"></i><i style="background:#7fd1ef"></i><i style="background:#f27fbe"></i><i style="background:#ffe97f"></i><i style="background:#898b8e"></i>
+      <i style="background:#00a3e0"></i><i style="background:#e6007e"></i><i style="background:#ffd400"></i><i style="background:#f3f5f7"></i><i style="background:#2346cc"></i><i style="background:#7fd1ef"></i><i style="background:#f27fbe"></i><i style="background:#ffe97f"></i><i style="background:#898b8e"></i>
     </div>
-    <h1>Small tools for <a href="#chroma" style="--c:var(--magenta)">color</a>, <a href="#journal" style="--c:var(--cyan)">paper</a> and <a href="#cover" style="--c:var(--yellow)">print</a>.</h1>
+    <h1>Small tools for <a href="#chroma" style="--c:#ff4fa8">color</a>, <a href="#journal" style="--c:#3dc1f3">paper</a> and <a href="#cover" style="--c:var(--yellow)">print</a>.</h1>
     <div class="hero-foot">
       <p class="lede">Free web apps that run in your browser. Install any of them to your phone's home screen and they work offline.</p>
       <ul class="index">
@@ -221,8 +224,8 @@
   <section class="how wrap">
     <h2>Nothing to buy, nothing to install unless you want to.</h2>
     <div class="trio">
-      <div style="--c:var(--cyan)"><h3>Free</h3><p>All three labs are free to use.</p></div>
-      <div style="--c:var(--magenta)"><h3>In your browser</h3><p>Open a lab and start working. They run on phone, tablet and desktop.</p></div>
+      <div style="--c:#3dc1f3"><h3>Free</h3><p>All three labs are free to use.</p></div>
+      <div style="--c:#ff4fa8"><h3>In your browser</h3><p>Open a lab and start working. They run on phone, tablet and desktop.</p></div>
       <div style="--c:var(--yellow)"><h3>Offline on your phone</h3><p>Add a lab to your home screen and it keeps working without a connection.</p></div>
     </div>
   </section>
